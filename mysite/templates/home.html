@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Welcome, {{ user.username }}!</h2>
+  <p>Uploaded files:</p>
+  <ul>
+    {% for obj in data%}
+      <li>
+      	
+        <a href="{{ obj.1 }}">{{ obj }}</a>
+<!--         <small>{{obj.description}}</small>
+        <small>(Uploaded at: {{ obj.uploaded_at }})</small> -->
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

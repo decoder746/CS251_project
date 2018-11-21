@@ -1,0 +1,145 @@
+
+cmake_minimum_required(VERSION 2.8.9)
+project (hello)
+add_executable(hello helloworld.cpp)
+ The CMakeLists.txt file in Listing 2 consists of only three lines:
+
+
+
+The first line sets the minimum version of CMake for this project, which is major version 2, minor version 8, and patch version 9 in this example. This version is somewhat arbitrary in this example, but providing a version number allows for future support for your build environment. Therefore, you should use the current version of CMake on your system, which for this example is determined just below.
+The second line is the project() command that sets the project name.
+The third line is the add_executable() command, which requests that an executable is to be built using the helloworld.cpp source file. The first argument to the add_executable() function is the name of the executable to be built, and the second argument is the source file from which to build the executable.
+
+ ___            ____               _______               ____________             _____________
+
+cmake_minimum_required(VERSION 2.8.9)
+project(directory_test)
+ 
+#Bring the headers, such as Student.h into the project
+include_directories(include)
+ 
+#Can manually add the sources using the set command as follows:
+#set(SOURCES src/mainapp.cpp src/Student.cpp)
+ 
+#However, the file(GLOB...) allows for wildcard additions:
+file(GLOB SOURCES "src/*.cpp")
+ 
+add_executable(testStudent ${SOURCES})
+
+
+
+The include_directories() function is used to bring the header files into the build environment.
+The set(SOURCES … ) function can be used to set a variable (SOURCES) that contains the name values of all of the source files (.cpp) in the project. However, because each source file must be added manually the next line is used in its place, and this line is commented out.
+The file() command is used to add the source files to the project. GLOB (or GLOB_RECURSE) is used to create a list of all of the files that meet the globbing expression (i.e., “src/*.cpp“) and add them to a variable SOURCES.
+The add_executable() function uses the SOURCES variable, rather than an explicit reference to each source file, in order to build the testStudent executable program.
+
+            ---------------------------                    --------------------------------------    
+
+
+
+cmake_minimum_required(VERSION 2.8.9)
+project(directory_test)
+set(CMAKE_BUILD_TYPE Release)
+ 
+#Bring the headers, such as Student.h into the project
+include_directories(include)
+ 
+#However, the file(GLOB...) allows for wildcard additions:
+file(GLOB SOURCES "src/*.cpp")
+ 
+#Generate the shared library from the sources
+add_library(testStudent SHARED ${SOURCES})
+ 
+#Set the location for library installation -- i.e., /usr/lib in this case
+# not really necessary in this example. Use "sudo make install" to apply
+install(TARGETS testStudent DESTINATION /usr/lib)
+The important changes for this example are as follows:
+
+The set(CMAKE_BUILD_TYPE Release) function is used to set the build type to be a release build.
+Instead of the add_executable() function that is used in previous examples, this example uses the add_library() function. The library is built as a shared library using the SHARED flag (other options are: STATIC or MODULE) , and the testStudent name is used as the name of the shared library.
+The last line uses the install() function to define an installation location for the library (in this case it is /usr/lib). Deployment is invoked using a call to sudo make install in this case.
+
+
+----------------------------------------------------------------------
+Multiple File Programs
+----------------------
+
+To invoke the Compile stage, which translates source code (.cpp files)
+into object code (.o files), use the -c flag.  Format:
+
+  g++ -c <filename>
+
+When the -c option is NOT used, the compiler will expect the command to 
+give everything necessary to compile AND link -- to make the executable.
+
+To name a target (something other than the default filename, use the -o flag.  
+Format:
+
+  g++ -o <target_name> <remainder of command>
+
+A few examples:
+
+  g++ -o yadda.o -c fraction.cpp
+
+This command invokes just the compile stage on fraction.cpp, but names the 
+object code file "yadda.o" (instead of the default "fraction.o").
+
+  g++ -o bob.exe circle.o main.o
+
+This command links the two object code files ("circle.o" and "main.o") 
+into an executable, called "bob.exe" (instead of the default "a.out").
+
+  g++ -o myProgram thing.cpp main.cpp
+
+This command compiles and links (since -c not used) the code files 
+"thing.cpp" and "main.cpp" together into the executable program called 
+"myProgram".
+
+There are other command formats, flags,  and shortcuts, which are not
+listed here.  The above commands are sufficient for basic compilation
+needs.
+---------------------------------------------------------------------
+
+Example:
+--------
+
+The following example is the step by step compilation of the files for
+the fraction class example.
+
+  To compile the cpp files into object code:
+					g++ -c frac.cpp
+					g++ -c main.cpp
+
+  Now, the object code files frac.o and main.o have been created.
+
+  To link the object code:		g++ -o frac frac.o main.o
+
+  This creates the executable "frac"
+
+  run the program:			frac
+
+--------------------------------------------------------------
+
+You can use the program ar to create static libraries using the following syntax:
+
+ ar rcs my_library.a file1.o file2.o
+So, in your case:
+
+$(PROJECT): $(OBJECTS)
+     ar rcs $(PROJECT) $(OBJECTS)
+You can find an explanation of the options on the man page, but basically:
+
+r says insert the given object files in to the archive (replacing any older versions of the same thing)
+c says create the archive if it isn't already there (normally this happens anyway, but this option suppresses the warning).
+s says to write an object-file index into the archive.
+
+------------------------------
+
+SEE BOOKMARK SHARED LIBRARY
+
+-----------------------
+
+
+
+
+
