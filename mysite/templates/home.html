@@ -1,16 +1,201 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script language="javascript">
+function blobToDataURL(blob, callback) {
+    var a = new FileReader();
+    a.onload = function(e) {callback(e.target.result);}
+    a.readAsDataURL(blob);
+}
+
+function dataURLtoBlob(dataurl) {
+    var arr = dataurl.split(','),
+    // , mime = arr[0].match(/:(.*?);/)[1],
+    bstr = atob(arr[0]), n = bstr.length, 
+        u8arr = new Uint8Array(n);
+    while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], {type: "" });
+}
+
+
+function testResults (form) {
+    var b1 = null;
+    var var1 = null;
+    var alg = form.scores.value;
+    var key =  form.inputbox.value;
+    var filename =  form.file.value;
+    var requestUrl = filename;
+    axios({
+  url: requestUrl,
+  method: 'GET',
+  responseType: 'blob', // important
+}).then((response) => {
+  b1 = new Blob([response.data]);
+  console.log(b1);
+  blobToDataURL(b1, function(dataurl){
+    // var1 = dataurl;
+    console.log(dataurl);
+    dataurl = dataurl.slice(37,-1);
+    console.log(dataurl);
+    var data = "TaOf7Esd09kzxlSXmhspmftVsyUPp/zrwXTCB4BFBm0v9llFNGGdD0pt0i7daowa7PE6waa38bWfpUo6ZnlWxIO3XFMH5I+tYU9Vx8KUy5jhkbhe48/NAeHSnOSJK5oZnmcaCsgDncnEX+BhmWZ+g0op1MjMOS4S2OAVYTPD+EGq9Yk76cC56nH8xAGKgFtAcC7DCHQ2JA17MEqK2cZsEQaG1sMIY5yyW1Z3JCfRYoF69aiRQNBM37ERfWO3cEvxlCtxSl/Wyu5HA3Vy38bSpCBE8Sm6p2lkpkvpmb5ZF1yATSVZ5yt9nn3kaxnW25Tl37q3xSEhb0O7q6yH2tSesQ3HERl1zCpw1CeRsAh81SSD5Ptc2qsOmCyHFgAX9CKvVr/nws5wmfuL7O/xohIjkKBe/fTI2EjoXWPrPxO+DW4N4G/S1SeUwgZxNXrBpd8NPZlJLfTiivN4Urpmo5A6h3fdA9u245dk0+MjxcAwJhg="
+    if(alg == 1)
+    {
+      // var pass = CryptoJS.enc.Hex.parse(key);
+      // // var decoded = CryptoJS.AES.decrypt(dataurl,key);
+      // var ciphertext=dataurl;
+      // var iv = CryptoJS.enc.Hex.parse(ciphertext.slice(0, 16));
+      // ciphertext = CryptoJS.enc.Base64.parse(ciphertext.slice(16));
+      // console.log(ciphertext.toString(CryptoJS.enc.Base64));
+      // var message = CryptoJS.AES.decrypt({
+      //     ciphertext: ciphertext
+      // }, key, {
+      //     iv: iv
+      // });
+
+      var rawData = atob(data);
+      var iv = rawData.substring(0,16);
+      var crypttext = rawData.substring(16);
+
+      // Decrypt...
+      var plaintextArray = CryptoJS.AES.decrypt(
+        { ciphertext: CryptoJS.enc.Latin1.parse(crypttext) },
+        CryptoJS.enc.Hex.parse(key),
+        { iv: CryptoJS.enc.Latin1.parse(iv) }
+      );
+
+      console.log(CryptoJS.enc.Latin1.stringify(plaintextArray));
+
+      // var ander = message.toString(CryptoJS.enc.Base64);
+      // console.log(ander);
+      // // console.log(decoded.toString(CryptoJS.enc.Utf8));
+      data = "IYkyGxYaNgHpnZWgwILMalVFmLWFgTCHCZL9263NOcfSo5lBjAzOZAtF5bF++R0Bi+9c9E+p3VEr/xvj4oABtRWVJ2wlWzLbYC2rKFk5iapFhb7uZCUpO4w4Su3a5QFa2vInjYueziRoqySZd/DpstMJ8rsJ94VGizFFFZ1l0sw1ax+wfBAv5+wHs/hlnHi/ea66KBO3rgXKahvV28h+4bh5etc8RCrmiiNbfg6Oj0jQJDjdYIdW8T9YPOI9E1hih8lbfRnMWcOFJgYekfLpoy5LI525UGnlM46J1k6ekLqsn9FqvbiOOoLgqa4YqBm1i9P0ePyjkME+t+RiL8xXX+ItgOYr9G7kM64wlTJPCW8B/crmUdmGzQNC/hD/u/8wfHBS2f8u6OtQMG/+Kpk1oju8lcUZGI/4S8A6/OuktvQr2zgnbs2aADMrM37Oait/pJ3G73S7NwVT8EaK+X43c0C/fUvW2/bD/rqCNpAh9WQlz4Cj6JHwjbmwuind6aCimF1tHjXuR9FXu+g17sPT4ZkKZ6aeBG+m170XdCGn2hVM0wH1rh3VeCG2u/JFqfuGKGSoqeHeNY/icu9pEhtZDzHd7aPoaMXcWvXC9PjooBf7GM1EPacSdnon1kBobjtKSt1l15DjO5TMrJoX7VO7GotQwo+uI/u5Kop01hBXxyxyggl1/8N0ESohPJoqLDrIwvbGK5kW4B49FVPnx9CMvjZDdSsoxPAh+hx6SPe8Hj0Nx4bRs06cbtOkte/V8QSYIqjiJDleEqPrdiKlvgToZz9L29ZR/3Ln65qU1sq7q9c0SEYxIopV7TdTjFS7y76zDPFZkhzc3DjfLtJo/M1hdtt648APcZdmAIgWH6fh3eJZ0qbiPh8RStYH7I2COmnlMw4+t/B5mlhYVSgwPK2Ir736Mh+P9Bw0fF8r9Ghhs4AJzpU0RiK9d1tCsrLfK/hSRwTXhtsSB6eDWEGkO7oeEIz43mgn0sv3SrA9JNHzYkg=";
+key = "2e35f242a46d67eeb74aabc37d5e5d05";
+
+// Decode the base64 data so we can separate iv and crypt text.
+var rawData = atob(data);
+var iv = rawData.substring(0,16);
+var crypttext = rawData.substring(16);
+
+// Decrypt...
+var plaintextArray = CryptoJS.AES.decrypt(
+  { ciphertext: CryptoJS.enc.Latin1.parse(crypttext) },
+  CryptoJS.enc.Hex.parse(key),
+  { iv: CryptoJS.enc.Latin1.parse(iv) }
+);
+
+console.log(CryptoJS.enc.Latin1.stringify(plaintextArray));
+      // const url = window.URL.createObjectURL(dataURLtoBlob(ander));
+      // const link = document.createElement('a');
+      // link.href = url;
+      // link.setAttribute('download', '---set--nsme--');
+      // document.body.appendChild(link);
+      // link.click();
+    }
+
+
+  });
+  // const url = window.URL.createObjectURL(b1);
+  // const link = document.createElement('a');
+  // link.href = url;
+  // link.setAttribute('download', '---set');
+  // document.body.appendChild(link);
+  // link.click();
+});
+
+}
+// b1 = new Bolb([b1],{type: ''});
+// console.log(b1);
+// var reader = new FileReader();
+// reader.onload = function() {
+//     var x = reader.result
+//     alert(reader.result);
+// }
+// reader.readAsDataURL(b1);
+// reader.readAsText(b1);
+// console.log(var1);
+
+
+
+
+
+
+
+
+    // if(alg == 1)
+    // {
+    //   var decoded = CryptoJS.AES.decrypt(b1,key);
+    //   console.log(decoded);
+    //   const url = window.URL.createObjectURL(decoded);
+    //   const link = document.createElement('a');
+    //   link.href = url;
+    //   link.setAttribute('download', '---set--nsme--');
+    //   document.body.appendChild(link);
+    //   link.click();
+    //   var blob = null;
+    //   var xhr = new XMLHttpRequest(); 
+    //   xhr.open("GET", "http://127.0.0.1:8000/media/glass6/home/anurag/Data/Sample.txt"); 
+    //   xhr.responseType = "blob";//force the HTTP response, response-type header to be blob
+    //   // alert("hoolahoo");
+    //   xhr.onload = function() 
+    //   {
+
+    //       var text = xhr.response;//xhr.response is now a blob object
+    //       blob = text;
+    //       console.log(blob);
+    //       console.log("sfdjagr");
+    //   }
+    //   xhr.send();
+    //   str = "newhoolahoo";
+
+    //   var blob1 = new Blob(["Hello world!"], { type: "text/plain" });
+    //   url1 = window.URL.createObjectURL(blob1);
+
+    //   // var blobUrl = window.URL.createObjectURL(blob);
+    //   var link = document.createElement("a"); // Or maybe get it from the current document
+    // link.href = url1;
+    // link.download = "aDefaultFileName.txt";
+    // link.innerHTML = "Click here to download the file";
+    // document.body.appendChild(link);
+    // }
+// axios({
+//   url: requestUrl,
+//   method: 'GET',
+//   responseType: 'blob', // important
+// }).then((response) => {
+//   const url = window.URL.createObjectURL(new Blob([response.data]));
+//   const link = document.createElement('a');
+//   link.href = url;
+//   link.setAttribute('download', 'Sample.txt');
+//   document.body.appendChild(link);
+//   link.click();
+// });
+
+// }
+</script>
   <h2>Welcome, {{ user.username }}!</h2>
-  <p>Uploaded files:</p>
-  <ul>
-    {% for obj in data%}
-      <li>
-      	
-        <a href="{{ obj.1 }}">{{ obj }}</a>
-<!--         <small>{{obj.description}}</small>
-        <small>(Uploaded at: {{ obj.uploaded_at }})</small> -->
-      </li>
-    {% endfor %}
-  </ul>
+  <form name="myform" action="" method="GET">
+    <p> select encryption scheme</p>
+              <legend>Encryption Algos</legend>
+              <ul>
+    <li><input type="radio" name="scores" id="1" value="1" checked=true> AES</li>
+    <li><input type="radio" name="scores" id="2" value="2"> 2</li>
+    <li><input type="radio" name="scores" id="3" value="3"> 3</li>
+</ul>
+  <p>enter decryption key</p>
+  <p>
+<INPUT TYPE="text" NAME="inputbox" VALUE="12345678901234567890123456789012">
+</INPUT>
+</p>
+  <p> complete the above two steps and select the button to decrypt file</p>
+
+              <legend>Select file</legend>
+                {% for obj in data%}
+                <p><input name="file" type="radio" value="{{ obj.1 }}">{{ obj }}</p>
+                {% endfor %}
+          <INPUT TYPE="button" NAME="button" Value="Click" onClick="testResults(this.form)">
+          </form>
 {% endblock %}

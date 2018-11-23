@@ -12,7 +12,7 @@ cur = con.cursor()
 
 # # cur.execute('''INSERT INTO glass2 VALUES("path1","documents/values/here",?)''',lst)
 
-cur.execute('''SELECT * FROM glass4 WHERE filename = "Screenshot from 2018-09-28 22-24-10.png"''')
+cur.execute('''SELECT * FROM SHARED WHERE user="glass6"''')
 for row in cur:
 	print(row)
 con.commit()
