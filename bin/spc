@@ -1,0 +1,104 @@
+#! /bin/bash
+if [[ "$1" = "signup" ]]; then
+	read -p "Username: " user
+	read -p "Password: " -s pass
+	echo ""
+	read -p "Confirm Password: " -s pass2
+	echo ""
+	server=$(head ~/server.txt)
+	python3 ~/bin/signup.py "$user" "$pass" "$pass2" "$HOME" "$server"
+elif [[ "$1" = "set-url" ]]; then
+	echo "$2" > ~/server.txt
+elif [[ "$1" = "login" ]]; then
+	read -p "Username: " user
+	read -p "Password: " -s pass
+	echo ""
+	touch ~/user.txt
+	server=$(head ~/server.txt)
+	python3 ~/bin/login.py "$user" "$pass" "$HOME" "$server"
+elif [[ "$1" = "view" ]]; then
+	server=$(head ~/server.txt)	
+	python3 ~/bin/view.py "$HOME" "$server"
+elif [[ "$1" = "en-de" ]]; then
+    if [[ "$2" = "list" ]]; then
+        echo "AES"
+        echo "3DES"
+        echo "RC4"
+    elif [[ "$2" = "dump" ]]; then
+        touch "$3"
+        echo "$3" > ~/dumpfile.txt
+        echo "RC4" > "$3"
+        echo "12345678912345678912345678912345" >> "$3"
+    elif [[ "$2" = "update" ]]; then
+        read -p "Schema used: " schema
+        echo "$scheme" > "$3"
+        if [[ "$schema" = "AES" ]]; then
+            read -p "Key: " key
+            echo "$key" >> "$3"
+        elif [[ "$schema" = "3DES" ]]; then
+            read -p "Key: " key
+            echo "$key" >> "$3"
+        elif [[ "$schema" = "RC4" ]]; then
+            echo "Key should be exactly 32 characters long"
+            read -p "Key: " key
+            while [[ ${#key} != 32 ]]; do
+                echo "Key does not have 32 characters"
+                read -p "Key: " key
+            done
+            echo "$key" >> "$3"
+        fi
+        dir=$(head ~/dir.txt)
+        server=$(head ~/server.txt)
+        dumpfile=$(head ~/dumpfile.txt)
+        for file in $( find "$dir" -! -type d )
+        do
+            echo "$file" >> ~/file.txt
+        done
+        python3 update.py "$HOME" "$dumpfile" "$3" "$server" "$dir"
+        echo "$3" > ~/dumpfile.txt
+        rm ~/file.txt 
+    fi
+elif [[ "$1" = "observe" ]]; then
+    echo "$2" > ~/dir.txt
+elif [[ "$1" = "upload" ]]; then
+    touch ~/file.txt
+    dir=$(head ~/dir.txt)
+    dumpfile=$(head ~/dumpfile.txt)
+	server=$(head ~/server.txt)
+	for file in $( find "$dir" -! -type d )
+	do
+    	echo "$file" >> ~/file.txt
+	done
+	python3 ~/bin/upload.py "$HOME" "$dumpfile" "$server" "$dir"
+    rm ~/file.txt
+elif [[ "$1" = "download" ]]; then
+    touch ~/file.txt
+    dir=$(head ~/dir.txt)
+    dumpfile=$(head ~/dumpfile.txt)
+    server=$(head ~/server.txt)
+    for file in $( find "$dir" -! -type d )
+    do
+        echo "$file" >> ~/file.txt
+    done
+    python3 ~/bin/download.py "$HOME" "$dumpfile" "$server" "$dir"
+    rm ~/file.txt
+elif [[ "$1" = "logout" ]]; then
+	rm ~/user.txt
+elif [[ "$1" = "status" ]]; then
+    touch ~/file.txt
+    dir=$(head ~/dir.txt)
+    server=$(head ~/server.txt)
+    for file in $( find "$dir" -! -type d )
+    do
+        echo "$file" >> ~/file.txt
+    done
+    python3 ~/bin/status.py "$HOME" "$server"
+    rm ~/file.txt
+elif [[ "$1" = "share" ]]; then
+    read -p "Path of file to be shared" file
+    read -p "User with whom file is to be shared" u
+    dumpfile=$(head ~/dumpfile.txt)
+    server=$(head ~/server.txt)
+    dir=$(head ~/dir.txt)
+    python3 share.py "$file" "$u" "$dumpfile" "$server" "$dir" "$HOME"
+fi
