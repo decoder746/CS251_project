@@ -4,3 +4,14 @@ if [ "$1" -eq '1' ]; then
 else
 	openssl enc -rc4 -d -A -base64 -in "$2" -out "$4" -K "$3"
 fi
+sjsa
+Aas
+d
+sdsa
+das
+dasasd
+asdas
+dasasdd
+asdasd
+sdsadas
+dasas
